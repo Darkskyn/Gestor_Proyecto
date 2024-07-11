@@ -1,0 +1,21 @@
+{
+  "kind": "collectionType",
+  "collectionName": "asignacions",
+  "info": {
+    "singularName": "asignacion",
+    "pluralName": "asignacions",
+    "displayName": "Asignacion"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "id_usuarios": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "plugin::users-permissions.user",
+      "mappedBy": "Id_asignacion"
+    }
+  }
+}

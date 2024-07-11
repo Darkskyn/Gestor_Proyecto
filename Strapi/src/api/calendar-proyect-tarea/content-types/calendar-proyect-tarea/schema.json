@@ -1,0 +1,33 @@
+{
+  "kind": "collectionType",
+  "collectionName": "calendar_proyect_tareas",
+  "info": {
+    "singularName": "calendar-proyect-tarea",
+    "pluralName": "calendar-proyect-tareas",
+    "displayName": "Calendar_Proyect_Tarea"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Id_calendarios": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::calendario.calendario",
+      "inversedBy": "Id_calendar_proyect_tareas"
+    },
+    "Id_proyectos": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::proyecto.proyecto",
+      "mappedBy": "Id_calendar_proyect_tareas"
+    },
+    "Id_tareas": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::tarea.tarea",
+      "mappedBy": "Id_calendar_proyect_tareas"
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "kind": "collectionType",
+  "collectionName": "comentarios",
+  "info": {
+    "singularName": "comentario",
+    "pluralName": "comentarios",
+    "displayName": "Comentario",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "comentario": {
+      "type": "text",
+      "maxLength": 150,
+      "minLength": 5,
+      "default": "Ingrese Comentario....min 5 caracter"
+    }
+  }
+}

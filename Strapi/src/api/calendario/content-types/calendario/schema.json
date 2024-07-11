@@ -1,0 +1,37 @@
+{
+  "kind": "collectionType",
+  "collectionName": "calendarios",
+  "info": {
+    "singularName": "calendario",
+    "pluralName": "calendarios",
+    "displayName": "Calendario",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Descripcion": {
+      "type": "text",
+      "required": true,
+      "maxLength": 150,
+      "private": true,
+      "minLength": 5
+    },
+    "Fecha_Inicio": {
+      "type": "date",
+      "required": true
+    },
+    "Fecha_Fin": {
+      "type": "date",
+      "required": true
+    },
+    "Id_calendar_proyect_tareas": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::calendar-proyect-tarea.calendar-proyect-tarea",
+      "mappedBy": "Id_calendarios"
+    }
+  }
+}

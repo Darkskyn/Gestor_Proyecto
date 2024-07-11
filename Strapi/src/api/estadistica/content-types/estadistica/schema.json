@@ -1,0 +1,14 @@
+{
+  "kind": "collectionType",
+  "collectionName": "estadisticas",
+  "info": {
+    "singularName": "estadistica",
+    "pluralName": "estadisticas",
+    "displayName": "Estadistica"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {}
+}

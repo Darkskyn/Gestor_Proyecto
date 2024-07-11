@@ -1,0 +1,100 @@
+{
+  "kind": "collectionType",
+  "collectionName": "proyectos",
+  "info": {
+    "singularName": "proyecto",
+    "pluralName": "proyectos",
+    "displayName": "Proyecto",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Nombre_Proyecto": {
+      "type": "string",
+      "required": false,
+      "maxLength": 100,
+      "minLength": 5
+    },
+    "Descripcion": {
+      "type": "text",
+      "required": false,
+      "maxLength": 500,
+      "minLength": 20
+    },
+    "Fecha_Inicio": {
+      "type": "date",
+      "required": false
+    },
+    "Fecha_Fin": {
+      "type": "date",
+      "required": false
+    },
+    "Estado_Proyecto": {
+      "type": "enumeration",
+      "enum": [
+        "Pendiente de Aprobación",
+        "En Progreso",
+        "Completado",
+        "Cancelado"
+      ],
+      "required": false
+    },
+    "Departamento": {
+      "type": "enumeration",
+      "enum": [
+        "Requerimiento",
+        "Proyecto"
+      ],
+      "required": false
+    },
+    "Objetivo_Proyecto": {
+      "type": "text",
+      "required": false,
+      "maxLength": 500,
+      "minLength": 20
+    },
+    "Prioridad": {
+      "type": "enumeration",
+      "enum": [
+        "Baja",
+        "Media",
+        "Alta"
+      ],
+      "required": false
+    },
+    "Gerente_Proyecto": {
+      "type": "enumeration",
+      "enum": [
+        "Jesus Garcia",
+        "Augusto Grado"
+      ],
+      "required": false
+    },
+    "Id_tareas": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::tarea.tarea",
+      "mappedBy": "Id_proyecto"
+    },
+    "Presupuesto": {
+      "type": "float",
+      "required": false,
+      "min": 1
+    },
+    "Id_calendar_proyect_tareas": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::calendar-proyect-tarea.calendar-proyect-tarea",
+      "inversedBy": "Id_proyectos"
+    },
+    "Id_recursos": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::recurso-proyecto.recurso-proyecto",
+      "mappedBy": "id_proyecto"
+    }
+  }
+}

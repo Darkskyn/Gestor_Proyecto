@@ -1,0 +1,43 @@
+{
+  "kind": "collectionType",
+  "collectionName": "recursos",
+  "info": {
+    "singularName": "recurso",
+    "pluralName": "recursos",
+    "displayName": "Recurso",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Descripcion": {
+      "type": "text",
+      "required": true,
+      "maxLength": 150,
+      "minLength": 5
+    },
+    "Id_menu_recurso": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::menu-recurso.menu-recurso",
+      "inversedBy": "Id_recursos"
+    },
+    "Estado": {
+      "type": "boolean",
+      "default": false
+    },
+    "Nombre": {
+      "type": "string",
+      "required": false,
+      "maxLength": 25
+    },
+    "recurso_proyecto": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::recurso-proyecto.recurso-proyecto",
+      "inversedBy": "id_recursos"
+    }
+  }
+}

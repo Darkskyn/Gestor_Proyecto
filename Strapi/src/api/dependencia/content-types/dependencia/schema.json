@@ -1,0 +1,27 @@
+{
+  "kind": "collectionType",
+  "collectionName": "dependencias",
+  "info": {
+    "singularName": "dependencia",
+    "pluralName": "dependencias",
+    "displayName": "Dependencia"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "tareas_Inicio": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::tarea.tarea",
+      "mappedBy": "dependencia"
+    },
+    "tareas_fin": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::tarea.tarea",
+      "mappedBy": "dependencia"
+    }
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "kind": "collectionType",
+  "collectionName": "tareas",
+  "info": {
+    "singularName": "tarea",
+    "pluralName": "tareas",
+    "displayName": "Tarea",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Nombre": {
+      "type": "string",
+      "required": false,
+      "maxLength": 50,
+      "minLength": 5
+    },
+    "Descripcion": {
+      "type": "text",
+      "required": false,
+      "maxLength": 250,
+      "minLength": 5,
+      "private": true
+    },
+    "Fecha_Inicio": {
+      "type": "date",
+      "required": false
+    },
+    "Fecha_Fin": {
+      "type": "date",
+      "required": false
+    },
+    "Estado": {
+      "type": "enumeration",
+      "enum": [
+        "En Ejecucion",
+        "Pausando",
+        "Cancelado",
+        "Finalizado",
+        "Pendiente"
+      ],
+      "required": false
+    },
+    "dependencia": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::dependencia.dependencia",
+      "inversedBy": "tareas_fin"
+    },
+    "Prioridad": {
+      "type": "enumeration",
+      "enum": [
+        "Baja",
+        "Media",
+        "Alta"
+      ],
+      "required": false
+    },
+    "Hitos": {
+      "type": "boolean",
+      "required": false,
+      "default": false
+    },
+    "Adjunto": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files"
+      ]
+    },
+    "Id_proyecto": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::proyecto.proyecto",
+      "inversedBy": "Id_tareas"
+    },
+    "Id_calendar_proyect_tareas": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::calendar-proyect-tarea.calendar-proyect-tarea",
+      "inversedBy": "Id_tareas"
+    }
+  }
+}
