@@ -47,6 +47,12 @@ const Proyectos = () => {
     setCurrentPage(currentPage + 1);
   };
 
+  // Función para redireccionar al detalle del proyecto
+  const redirectToProjectDetail = (projectId) => {
+    // Construye la URL con el ID del proyecto
+    window.location.href = `/Info_Proyect?projectId=${projectId}`;
+  };
+
   // Función para obtener la clase CSS según el estado del proyecto
   const getStatusClass = (estado) => {
     switch (estado) {
@@ -102,6 +108,7 @@ const Proyectos = () => {
             {currentProjects.map((proyecto) => (
               <div
                 key={proyecto.id}
+                onClick={() => redirectToProjectDetail(proyecto.id)}
                 className="backdrop-blur-sm bg-white/20 p-6 rounded-md shadow-sm cursor-pointer border-2 hover:border-green-500 border-blue-800 transition-colors duration-300"
               >
                 <h2 className="text-xl font-semibold mb-4 uppercase">
@@ -146,3 +153,4 @@ const Proyectos = () => {
 };
 
 export default Proyectos;
+

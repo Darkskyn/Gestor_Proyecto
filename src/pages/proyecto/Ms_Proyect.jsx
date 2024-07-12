@@ -1,6 +1,6 @@
 import React from 'react'
 import Sidebar from '../../componentes/Sidebar'
-import Header2 from './componentes/Header'
+import Header from './componentes/Header'
 import Busqueda from './componentes/Busqueda'
 import Proyectos from './componentes/proyectos'
 import Footer_Proyect from './componentes/footer_Proyect'
