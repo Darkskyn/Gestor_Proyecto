@@ -27,11 +27,17 @@
       "target": "api::recurso.recurso",
       "mappedBy": "Id_menu_recurso"
     },
-    "id_recurso_proyecto": {
+    "id_recurso_proyectos": {
       "type": "relation",
-      "relation": "oneToOne",
+      "relation": "oneToMany",
       "target": "api::recurso-proyecto.recurso-proyecto",
       "mappedBy": "id_tipo"
+    },
+    "Id_auditoria_menu_recursos": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::auditoria-menu-recurso.auditoria-menu-recurso",
+      "mappedBy": "id_menu_recursos"
     }
   }
 }

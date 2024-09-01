@@ -12,6 +12,7 @@ const Recurso_datos = () => {
     const urlParams = new URLSearchParams(window.location.search);
     setidrecurso(urlParams.get('idrecurso'));
     setnombre_recurso(urlParams.get('recurso'));
+
   }, []);
 
   return (
@@ -22,8 +23,8 @@ const Recurso_datos = () => {
           <div className="flex justify-between items-center mb-4">
             <Header_recurso nombreRecurso={recurso} />
           </div>
-          <div className='pt-20'>
-          <Menu_recurso idrecurso={idrecurso} />
+          <div className=''>
+          <Menu_recurso idrecurso={idrecurso} rescurso={recurso} />
           </div>
         </main>
       </div>

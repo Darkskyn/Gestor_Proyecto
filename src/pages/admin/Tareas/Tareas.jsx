@@ -2,7 +2,7 @@ import React from 'react'
 import Sidebar from './componentes/Sidebar'
 import Header from './componentes/Header'
 import Tabla from './componentes/tabla'
-import foto1 from '../../../assets/tecnologia3.jpg'
+import foto1 from '../../../assets/tecnologia2.jpg'
 
 const Tareas = () => {
   return (

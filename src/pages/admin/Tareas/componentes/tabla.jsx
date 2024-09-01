@@ -1,72 +1,171 @@
 import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
+import { CiEdit } from 'react-icons/ci'; // Importa el ícono de lápiz
+
+const ITEMS_PER_PAGE = 10; // Número de elementos por página
 
 const Tabla = () => {
   const [tareas, setTareas] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [editingTask, setEditingTask] = useState(null);
+  const [newEstado, setNewEstado] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     fetch('http://localhost:1337/api/tareas?populate=Id_proyecto')
       .then(response => response.json())
       .then(data => {
-        console.log(data); // Muestra la respuesta en la consola
         if (data.data) {
-          // Extraer las tareas de la estructura de respuesta
-          const extractedTareas = data.data.map(item => item.attributes);
-          setTareas(extractedTareas); // Actualiza el estado de tareas con los datos extraídos
+          const extractedTareas = data.data.map(item => {
+            const attributes = item.attributes || {};
+            const proyectoData = attributes.Id_proyecto && attributes.Id_proyecto.data ? attributes.Id_proyecto.data : {};
+            const Nombre_Proyecto = proyectoData.attributes ? proyectoData.attributes.Nombre_Proyecto : 'Desconocido';
+            const Id_proyecto = proyectoData.id || 'Desconocido';
+            const id_tareas = item.id || 'Desconocido';
+
+            return {
+              id: id_tareas, // ID de la tarea
+              ...attributes,
+              Nombre_Proyecto,
+              Id_proyecto,
+              id_tareas
+            };
+          });
+
+          setTareas(extractedTareas);
         }
       })
       .catch(error => console.error('Error al obtener tareas:', error));
-  }, []); // El efecto se ejecuta una vez al montar el componente
+  }, []);
 
-  console.log('Tareas actuales:', tareas); // Verifica el estado actual de las tareas en el componente
+  const handleEditClick = (tarea) => {
+    setEditingTask(tarea);
+    setNewEstado(tarea.Estado || 'Pendiente');
+  };
 
-  const handleDelete = async (id) => {
-    const confirmDelete = await Swal.fire({
-      title: '¿Estás seguro?',
-      text: '¡No podrás revertir esto!',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Sí, eliminarlo!',
-      cancelButtonText: 'Cancelar'
-    });
+  const handleEditSubmit = async (event) => {
+    event.preventDefault();
+    if (!editingTask) return;
 
-    if (confirmDelete.isConfirmed) {
-      try {
-        const response = await fetch(`http://localhost:1337/api/tareas/${id}`, {
-          method: 'DELETE'
-        });
-        if (response.ok) {
-          // Eliminar la tarea de la lista
-          const updatedTareas = tareas.filter(tarea => tarea.id !== id);
-          setTareas(updatedTareas); // Actualizar el estado de tareas
-          Swal.fire('¡Eliminado!', 'La tarea ha sido eliminada.', 'success');
-        } else {
-          console.error('Error al eliminar la tarea:', response.statusText);
-          Swal.fire('Error', 'Hubo un problema al eliminar la tarea.', 'error');
-        }
-      } catch (error) {
-        console.error('Error al eliminar la tarea:', error);
-        Swal.fire('Error', 'Hubo un problema al eliminar la tarea.', 'error');
+    try {
+      const authToken = localStorage.getItem('authToken');
+      const username = localStorage.getItem('username');
+
+      if (!authToken) {
+        console.error('Token de autenticación no encontrado');
+        throw new Error('Token de autenticación no encontrado');
       }
+
+      const wasSuspended = editingTask.Estado === 'Suspendido';
+      const isReactivating = wasSuspended && newEstado !== 'Suspendido';
+
+      const updateResponse = await fetch(`http://localhost:1337/api/tareas/${editingTask.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify({
+          data: {
+            Estado: newEstado
+          }
+        })
+      });
+
+      if (!updateResponse.ok) {
+        const errorText = await updateResponse.text();
+        console.error('Error al actualizar la tarea:', errorText);
+        throw new Error(errorText || 'Error al actualizar la tarea');
+      }
+
+      console.log('Tarea actualizada correctamente');
+
+      const auditData = {
+        Fecha: new Date().toISOString(),
+        id_proyectos: editingTask.Id_proyecto || 'Desconocido',
+        Id_tareas: editingTask.id_tareas || 'Desconocido',
+        Nombre_Tarea: editingTask.Nombre || 'Desconocido',
+        Accion: isReactivating ? 'Reactivacion' : 'Modificacion',
+        Usuario: username || 'Desconocido'
+      };
+
+      const auditResponse = await fetch('http://localhost:1337/api/audotira-tareas', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify({ data: auditData })
+      });
+
+      const auditResponseText = await auditResponse.text();
+      console.log('Respuesta de auditoría (texto):', auditResponseText);
+
+      if (!auditResponse.ok) {
+        console.error('Error al enviar la auditoría:', auditResponseText);
+        throw new Error(auditResponseText || 'Error al enviar la auditoría');
+      }
+
+      const updatedTareas = tareas.map(tarea =>
+        tarea.id === editingTask.id
+          ? { ...tarea, Estado: newEstado }
+          : tarea
+      );
+      setTareas(updatedTareas);
+      setEditingTask(null);
+      Swal.fire('¡Actualizado!', 'El estado de la tarea ha sido actualizado y se ha registrado la auditoría.', 'success');
+    } catch (error) {
+      console.error('Error al actualizar la tarea o enviar la auditoría:', error);
+      Swal.fire('Error', error.message, 'error');
     }
   };
 
   const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value); // Actualiza el término de búsqueda
+    setSearchTerm(event.target.value);
   };
 
-  // Filtrar las tareas cuando cambie el término de búsqueda
   const filteredTareas = tareas.filter(tarea =>
-    tarea.Nombre.toLowerCase().includes(searchTerm.toLowerCase())
+    (tarea.Nombre || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (tarea.Estado || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  console.log('Tareas filtradas:', filteredTareas); // Verifica las tareas después de aplicar el filtro
+  // Paginación
+  const totalPages = Math.ceil(filteredTareas.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentPageTareas = filteredTareas.slice(startIndex, endIndex);
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const getEstadoColor = (estado) => {
+    switch (estado) {
+      case 'Cancelado':
+        return 'bg-red-400';
+      case 'Pendiente':
+        return 'bg-yellow-400';
+      case 'Ejecucion':
+        return 'bg-blue-400';
+      case 'Finalizado':
+        return 'bg-green-400';
+      case 'Suspendido':
+        return 'bg-orange-500';
+      default:
+        return 'bg-gray-200';
+    }
+  };
 
   return (
-    <div className="text-lg">
+    <div>
       <div className="w-full pl-[800px]">
         <div className="relative mt-16 w-full">
           <input
@@ -96,60 +195,110 @@ const Tabla = () => {
         </div>
       </div>
 
-      <section className="mt-10 px-4 py-8 text-black antialiased">
+      <section className="mt-10 px-4 py-8 text-black antialiased bg-[#0d30a1]/20">
         <div className="container mx-auto">
           <div className="overflow-x-auto">
             <table className="w-full table-auto border-collapse border border-gray-800">
               <thead className="bg-blue-700 text-white text-sm font-semibold uppercase">
                 <tr>
-                  <th className="p-2 text-center">Nombre</th>
-                  <th className="p-2 text-center">Descripción</th>
-                  <th className="p-2 text-center">Fecha Inicio</th>
-                  <th className="p-2 text-center">Fecha Fin</th>
-                  <th className="p-2 text-center">Estado</th>
-                  <th className="p-2 text-center">Hitos</th>
-                  <th className="p-2 text-center">Acciones</th>
+                  <th className="p-2 text-center uppercase">Nombre</th>
+                  <th className="p-2 text-center uppercase">Proyecto</th>
+                  <th className="p-2 text-center uppercase">Fecha Inicio</th>
+                  <th className="p-2 text-center uppercase">Fecha Fin</th>
+                  <th className="p-2 text-center uppercase">Estado</th>
+                  <th className="p-2 text-center uppercase">Hitos</th>
+                  <th className="p-2 text-center uppercase">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-700 text-base">
-                {filteredTareas.length > 0 ? (
-                  filteredTareas.map(tarea => (
-                    <tr key={tarea.id}>
-                      <td className="p-2 text-center text-lg">{tarea.Nombre}</td>
-                      <td className="p-2 text-center text-lg">{tarea.Descripcion}</td>
-                      <td className="p-2 text-center text-lg">{tarea.Fecha_Inicio}</td>
-                      <td className="p-2 text-center text-lg">{tarea.Fecha_Fin}</td>
-                      <td className="p-2 text-center text-lg">{tarea.Estado}</td>
-                      <td className="p-2 text-center text-lg">{tarea.Hitos ? 'Sí' : 'No'}</td>
+                {currentPageTareas.length > 0 ? (
+                  currentPageTareas.map(tarea => (
+                    <tr key={tarea.id} className="text-black">
+                      <td className="p-2 text-center text-lg uppercase">{tarea.Nombre || 'Desconocido'}</td>
+                      <td className="p-2 text-center text-lg uppercase">{tarea.Nombre_Proyecto || 'Desconocido'}</td>
+                      <td className="p-2 text-center text-lg uppercase">{tarea.Fecha_Inicio || 'Desconocido'}</td>
+                      <td className="p-2 text-center text-lg uppercase">{tarea.Fecha_Fin || 'Desconocido'}</td>
+                      <td className={`p-2 text-center text-lg ${getEstadoColor(tarea.Estado || '')} rounded-lg uppercase`}>
+                        {tarea.Estado || 'Desconocido'}
+                      </td>
+                      <td className="p-2 text-center text-lg uppercase">{tarea.Hitos ? 'Sí' : 'No'}</td>
                       <td className="p-2 flex justify-center space-x-4">
-                        <svg
-                          onClick={() => handleDelete(tarea.id)}
+                        <CiEdit
+                          onClick={() => handleEditClick(tarea)}
                           className="h-8 w-8 rounded-full p-1 hover:bg-gray-900 hover:text-white cursor-pointer"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                          ></path>
-                        </svg>
+                        />
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td className="p-2 text-center text-lg" colSpan="7">No se encontraron resultados.</td>
+                    <td className="p-2 text-center" colSpan="7">No se encontraron resultados.</td>
                   </tr>
                 )}
               </tbody>
             </table>
+
+            <div className="flex justify-between items-center mt-4">
+              {currentPage > 1 && (
+                <button
+                  onClick={handlePreviousPage}
+                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                >
+                  Anterior
+                </button>
+              )}
+              <span>Página {currentPage} de {totalPages}</span>
+              {currentPage < totalPages && (
+                <button
+                  onClick={handleNextPage}
+                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                >
+                  Siguiente
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </section>
+
+      {editingTask && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+            <h2 className="text-xl font-semibold mb-4">Editar Estado de Tarea</h2>
+            <form onSubmit={handleEditSubmit}>
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2">Estado</label>
+                <select
+                  value={newEstado}
+                  onChange={(e) => setNewEstado(e.target.value)}
+                  className="w-full bg-gray-200 border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="Pendiente">Pendiente</option>
+                  <option value="Ejecucion">En Ejecucion</option>
+                  <option value="Finalizado">Finalizado</option>
+                  <option value="Cancelado">Cancelado</option>
+                  <option value="Suspendido">Suspendido</option>
+                </select>
+              </div>
+              <div className="flex justify-end space-x-4">
+                <button
+                  type="button"
+                  onClick={() => setEditingTask(null)}
+                  className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                >
+                  Guardar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

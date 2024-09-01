@@ -1,69 +1,150 @@
 import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
+import { CiEdit } from 'react-icons/ci';
+import { FaPauseCircle } from 'react-icons/fa';
 
 const Tabla = () => {
   const [usuarios, setUsuarios] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [editingUser, setEditingUser] = useState(null);
+  const [authToken, setAuthToken] = useState(null);
+  const [roles, setRoles] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [usuariosPerPage] = useState(10); // Número de usuarios por página
 
   useEffect(() => {
+    const authToken = localStorage.getItem('authToken');
+    if (authToken) {
+      setAuthToken(authToken);
+    }
+
+    fetch('http://localhost:1337/api/users-permissions/roles')
+      .then(response => response.json())
+      .then(data => {
+        if (data && data.roles) {
+          const filteredRoles = data.roles.filter(role => role.type !== 'authenticated' && role.type !== 'public');
+          setRoles(filteredRoles);
+        }
+      })
+      .catch(error => console.error('Error al obtener roles:', error));
+
+    fetchUsuarios();
+  }, []);
+
+  const fetchUsuarios = () => {
     fetch('http://localhost:1337/api/users?populate=role')
       .then(response => response.json())
       .then(data => {
-        console.log(data); // Muestra la respuesta en la consola
         if (data) {
-          setUsuarios(data); // Actualiza el estado de usuarios con los datos recibidos
+          const usuariosFormatted = data.map(usuario => ({
+            ...usuario,
+            username: usuario.username ? usuario.username.toUpperCase() : '',
+            email: usuario.email ? usuario.email.toUpperCase() : '',
+          }));
+          setUsuarios(usuariosFormatted);
         }
       })
       .catch(error => console.error('Error al obtener usuarios:', error));
-  }, []); // El efecto se ejecuta una vez al montar el componente
+  };
 
-  const handleDelete = async (id) => {
-    const confirmDelete = await Swal.fire({
-      title: '¿Estás seguro?',
-      text: '¡No podrás revertir esto!',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Sí, eliminarlo!',
-      cancelButtonText: 'Cancelar'
-    });
+  const handleEdit = (usuario) => {
+    setEditingUser(usuario);
+  };
 
-    if (confirmDelete.isConfirmed) {
-      try {
-        const response = await fetch(`http://localhost:1337/api/users/${id}`, {
-          method: 'DELETE'
+  const handleFormSubmit = async (event) => {
+    event.preventDefault();
+    const roleId = event.target.role.value;
+    const estatus = event.target.estatus.value === 'true'; // Convertir a booleano
+
+    try {
+      const response = await fetch(`http://localhost:1337/api/users/${editingUser.id}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          role: roleId,
+          Estatus: estatus
+        })
+      });
+
+      if (response.ok) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Usuario actualizado',
+          text: 'El rol y el estatus del usuario han sido actualizados correctamente.'
+        }).then(() => {
+          fetchUsuarios();
+          setEditingUser(null);
         });
-        if (response.ok) {
-          // Eliminar el usuario de la lista
-          const updatedUsuarios = usuarios.filter(usuario => usuario.id !== id);
-          setUsuarios(updatedUsuarios); // Actualizar el estado de usuarios
-          Swal.fire('¡Eliminado!', 'El usuario ha sido eliminado.', 'success');
-        } else {
-          console.error('Error al eliminar el usuario:', response.statusText);
-          Swal.fire('Error', 'Hubo un problema al eliminar el usuario.', 'error');
-        }
-      } catch (error) {
-        console.error('Error al eliminar el usuario:', error);
-        Swal.fire('Error', 'Hubo un problema al eliminar el usuario.', 'error');
+      } else {
+        throw new Error('Error al actualizar usuario');
       }
+    } catch (error) {
+      console.error('Error al actualizar usuario:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Ocurrió un error al intentar actualizar el rol y el estatus del usuario. Por favor, intenta nuevamente.'
+      });
     }
   };
 
   const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value); // Actualiza el término de búsqueda
+    setSearchTerm(event.target.value);
+    setCurrentPage(1); // Resetea la página cuando cambia la búsqueda
   };
 
-  const getStatusLabel = (estado) => {
+  const getRecursoLabel = (estado) => {
     return estado ? 'Disponible' : 'No disponible';
   };
 
+  const getEstatusLabel = (estatus) => {
+    return estatus ? 'Activo' : 'Suspendido';
+  };
+
+  const getEstatusClass = (estatus) => {
+    return estatus
+      ? 'bg-green-500 text-white rounded-lg px-4 py-2'
+      : 'bg-orange-500 text-white rounded-lg px-4 py-2';
+  };
+
+  const closeModal = () => {
+    setEditingUser(null);
+  };
+
   const filteredUsuarios = usuarios.filter(usuario =>
-    usuario.username.toLowerCase().includes(searchTerm.toLowerCase())
+    usuario.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    usuario.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    getRecursoLabel(usuario.Estado).toLowerCase().includes(searchTerm.toLowerCase()) ||
+    getEstatusLabel(usuario.Estatus).toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (usuario.role && usuario.role.name ? usuario.role.name.toLowerCase().includes(searchTerm.toLowerCase()) : false)
   );
+
+  // Calcular los índices de los usuarios a mostrar
+  const indexOfLastUser = currentPage * usuariosPerPage;
+  const indexOfFirstUser = indexOfLastUser - usuariosPerPage;
+  const currentUsers = filteredUsuarios.slice(indexOfFirstUser, indexOfLastUser);
+
+  // Calcular el número total de páginas
+  const totalPages = Math.ceil(filteredUsuarios.length / usuariosPerPage);
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
 
   return (
     <div>
+      {/* Barra de búsqueda */}
       <div className="w-full pl-[800px]">
         <div className="relative mt-16 w-full">
           <input
@@ -93,7 +174,8 @@ const Tabla = () => {
         </div>
       </div>
 
-      <section className="mt-10  px-4 py-8 text-black antialiased">
+      {/* Tabla con fondo azul */}
+      <section className="mt-10 px-4 py-8 text-black antialiased bg-[#0d30a1]/20">
         <div className="container mx-auto">
           <div className="overflow-x-auto">
             <table className="w-full table-auto border-collapse border border-gray-800">
@@ -101,39 +183,32 @@ const Tabla = () => {
                 <tr>
                   <th className="p-4 text-center">Username</th>
                   <th className="p-4 text-center">Email</th>
-                  <th className="p-4 text-center">Estado</th>
+                  <th className="p-4 text-center">Recurso</th>
                   <th className="p-4 text-center">Rol</th>
+                  <th className="p-4 text-center">Estatus</th>
                   <th className="p-4 text-center">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-700 text-lg">
-                {filteredUsuarios.length === 0 && (
+                {currentUsers.length === 0 && (
                   <tr>
-                    <td colSpan="5" className="p-4 text-center">No se encontraron resultados.</td>
+                    <td colSpan="6" className="p-4 text-center">No se encontraron resultados.</td>
                   </tr>
                 )}
-                {filteredUsuarios.map(usuario => (
+                {currentUsers.map(usuario => (
                   <tr key={usuario.id}>
                     <td className="p-4 text-center">{usuario.username}</td>
                     <td className="p-4 text-center">{usuario.email}</td>
-                    <td className="p-4 text-center">{getStatusLabel(usuario.Estado)}</td>
-                    <td className="p-4 text-center">{usuario.role ? usuario.role.name : 'Sin rol'}</td>
+                    <td className="p-4 text-center">{getRecursoLabel(usuario.Estado)}</td>
+                    <td className="p-4 text-center">{usuario.role ? (usuario.role.name ? usuario.role.name.toUpperCase() : 'SIN ROL') : 'SIN ROL'}</td>
+                    <td className={`p-4 text-center ${getEstatusClass(usuario.Estatus)}`}>
+                      {getEstatusLabel(usuario.Estatus)}
+                    </td>
                     <td className="p-4 flex justify-center space-x-4">
-                      <svg
-                        onClick={() => handleDelete(usuario.id)}
+                      <CiEdit
+                        onClick={() => handleEdit(usuario)}
                         className="h-8 w-8 rounded-full p-1 hover:bg-gray-900 hover:text-white cursor-pointer"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        ></path>
-                      </svg>
+                      />
                     </td>
                   </tr>
                 ))}
@@ -142,6 +217,76 @@ const Tabla = () => {
           </div>
         </div>
       </section>
+      
+      {/* Modal de edición */}
+      {editingUser && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+            <h2 className="text-2xl mb-4">Editar Usuario</h2>
+            <form onSubmit={handleFormSubmit}>
+              <div className="mb-4">
+                <label className="block text-gray-700">Rol</label>
+                <select
+                  name="role"
+                  defaultValue={editingUser.role ? editingUser.role.id : ''}
+                  className="mt-1 block w-full bg-gray-200 border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  {roles.map(role => (
+                    <option key={role.id} value={role.id}>
+                      {role.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-700">Estatus</label>
+                <select
+                  name="estatus"
+                  defaultValue={editingUser.Estatus ? 'true' : 'false'}
+                  className="mt-1 block w-full bg-gray-200 border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="true">Activo</option>
+                  <option value="false">Suspendido</option>
+                </select>
+              </div>
+              <div className="flex justify-end space-x-4">
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                >
+                  Guardar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Controles de Paginación */}
+      <div className="flex justify-between mt-4 px-4">
+        <button
+          className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full focus:outline-none 
+          ${currentPage === 1 ? 'invisible' : ''}`}
+          onClick={handlePreviousPage}
+        >
+          Anterior
+        </button>
+        <span className="self-center">Página {currentPage} de {totalPages}</span>
+        <button
+          className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full focus:outline-none 
+          ${currentPage === totalPages ? 'invisible' : ''}`}
+          onClick={handleNextPage}
+        >
+          Siguiente
+        </button>
+      </div>
     </div>
   );
 };

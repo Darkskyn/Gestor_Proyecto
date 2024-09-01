@@ -2,7 +2,7 @@ import React from 'react'
 import Menu from './componentes/menu'
 import Sidebar from './componentes/Sidebar'
 import Header from './componentes/Header'
-import foto2 from '../../../assets/tecnologia2.png'
+import foto2 from '../../../assets/tecnologia2.jpg'
 const Recurso = () => {
   return (
     <>

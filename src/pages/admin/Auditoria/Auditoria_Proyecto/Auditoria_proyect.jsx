@@ -2,6 +2,7 @@ import React from 'react'
 import Sidebar from '../componentes/Sidebar'
 import Header from './componentes/Header'
 import foto1 from '../../../../assets/tecnologia3.jpg'
+import Tabla from './componentes/Tabla'
 
 const Auditoria_proyect = () => {
   return (
@@ -12,7 +13,7 @@ const Auditoria_proyect = () => {
       <div className="flex justify-between items-center mb-4">
       <Header />
       </div>
-      
+      <Tabla />
       </main>
     </div>
     </>

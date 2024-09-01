@@ -1,0 +1,40 @@
+{
+  "kind": "collectionType",
+  "collectionName": "respuesta_ts",
+  "info": {
+    "singularName": "respuesta-t",
+    "pluralName": "respuesta-ts",
+    "displayName": "RespuestaT",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Fecha": {
+      "type": "datetime"
+    },
+    "Respuesta": {
+      "type": "string"
+    },
+    "Id_usuario": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "Id_respuesta_ts"
+    },
+    "Id_tarea": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::tarea.tarea",
+      "inversedBy": "Id_respuesta_ts"
+    },
+    "Id_comentarios": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::comentario-t.comentario-t",
+      "inversedBy": "Id_respuesta_ts"
+    }
+  }
+}

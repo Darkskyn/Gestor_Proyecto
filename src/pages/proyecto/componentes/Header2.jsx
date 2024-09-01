@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Swal from "sweetalert2"; // Importa SweetAlert2
 import { FiServer, FiEdit } from "react-icons/fi";
 
 const Header = ({ idproyect }) => {
   const [projectData, setProjectData] = useState({
     Nombre_Proyecto: "",
-    Descripcion: "",
     Estado_Proyecto: "",
     Departamento: "",
     Objetivo_Proyecto: "",
@@ -59,13 +59,28 @@ const Header = ({ idproyect }) => {
     e.preventDefault();
     try {
       await axios.put(`http://localhost:1337/api/proyectos/${idproyect}`, {
-        data: projectData // Enviar projectData dentro de un objeto 'data'
+        data: projectData 
       });
-      console.log('Proyecto actualizado correctamente');
+
+      // Muestra el mensaje de éxito con SweetAlert2
+      await Swal.fire({
+        title: 'Éxito',
+        text: 'El proyecto se actualizó correctamente.',
+        icon: 'success',
+        confirmButtonText: 'OK'
+      });
+
       setModalOpen(false);
-      window.location.reload(); // Recargar la página después de guardar los cambios
+      // Recarga la página después de mostrar el mensaje
+      window.location.reload();
     } catch (error) {
       console.error('Error updating project:', error);
+      Swal.fire({
+        title: 'Error',
+        text: 'Hubo un problema al actualizar el proyecto.',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
     }
   };
 
@@ -78,76 +93,50 @@ const Header = ({ idproyect }) => {
   };
 
   return (
-    <header className="flex flex-col md:flex-row items-center justify-between gap-4">
+    <header className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 bg-gray-100">
       <h1 className="text-black text-2xl md:text-3xl font-bold flex items-center">
         <FiServer className="mr-2" />
         Previsualización del Proyecto: {" "}
         {projectData.Nombre_Proyecto && (
-          <span className="bg-green-500 text-white p-1 rounded">{projectData.Nombre_Proyecto.toUpperCase()}</span>
+          <span className="bg-green-500 text-white p-1 rounded-lg font-bold">{projectData.Nombre_Proyecto.toUpperCase()}</span>
         )}
       </h1>
 
       <button
         id="openModalBtn"
-        className="flex mt-5 items-center bg-gradient-to-r from-blue-700 to-green-500 border border-green-500 hover:border-violet-500 text-white font-semibold py-3 px-6 rounded-md transition-colors duration-300"
+        className="flex items-center bg-gradient-to-r from-blue-700 to-green-500 border border-green-500 hover:border-violet-500 text-white font-semibold py-2 px-4 rounded-md transition-colors duration-300"
         onClick={handleEditClick}
       >
         <FiEdit className="mr-2" />
-        Editar Proyecto
+        EDITAR PROYECTO
       </button>
 
       {modalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="bg-zinc-400 bg-opacity-90 fixed inset-0"></div>
-          <div className="modal-container p-6 backdrop-blur-sm bg-white/90 w-11/12 sm:w-11/12 md:w-8/12 lg:w-6/12 rounded-md shadow-sm relative z-10">
-            <h2 className="text-2xl font-semibold mb-6">Editar Proyecto</h2>
+          <div className="bg-gray-900 bg-opacity-50 fixed inset-0"></div>
+          <div className="modal-container p-6 bg-white shadow-lg rounded-lg w-11/12 sm:w-11/12 md:w-8/12 lg:w-6/12 relative z-10">
+            <h2 className="text-xl font-semibold mb-6 uppercase">Editar Proyecto</h2>
             <form onSubmit={handleSubmit}>
-              <label htmlFor="Nombre_Proyecto" className="block text-sm font-medium text-black mb-2">
+              <label htmlFor="Nombre_Proyecto" className="block text-sm font-medium text-gray-700 mb-2">
                 Nombre Proyecto
               </label>
               <input
                 type="text"
                 id="Nombre_Proyecto"
                 name="Nombre_Proyecto"
-                className="w-full p-2 mb-4 rounded-lg focus:outline-none border-2 border-green-500 focus:border-blue-500 transition-colors duration-300"
+                className="w-full p-2 mb-4 rounded-lg border border-green-500 focus:border-blue-500 focus:outline-none transition-colors duration-300"
                 value={projectData.Nombre_Proyecto}
                 onChange={handleInputChange}
               />
 
-              <label htmlFor="Descripcion" className="block text-sm font-medium text-black mb-2">
-                Descripción
-              </label>
-              <textarea
-                id="Descripcion"
-                name="Descripcion"
-                className="w-full p-2 mb-4 rounded-lg focus:outline-none border-2 border-green-500 focus:border-blue-500 transition-colors duration-300"
-                value={projectData.Descripcion}
-                onChange={handleInputChange}
-              />
 
-              <label htmlFor="Estado_Proyecto" className="block text-sm font-medium text-black mb-2">
-                Estado Proyecto
-              </label>
-              <select
-                id="Estado_Proyecto"
-                name="Estado_Proyecto"
-                className="w-full p-2 mb-4 rounded-lg focus:outline-none border-2 border-green-500 focus:border-blue-500 transition-colors duration-300"
-                value={projectData.Estado_Proyecto}
-                onChange={handleInputChange}
-              >
-                <option value="Pendiente de Aprobación">Pendiente de Aprobación</option>
-                <option value="En Progreso">En Progreso</option>
-                <option value="Completado">Completado</option>
-                <option value="Cancelado">Cancelado</option>
-              </select>
-
-              <label htmlFor="Departamento" className="block text-sm font-medium text-black mb-2">
+              <label htmlFor="Departamento" className="block text-sm font-medium text-gray-700 mb-2">
                 Departamento
               </label>
               <select
                 id="Departamento"
                 name="Departamento"
-                className="w-full p-2 mb-4 rounded-lg focus:outline-none border-2 border-green-500 focus:border-blue-500 transition-colors duration-300"
+                className="w-full p-2 mb-4 rounded-lg border border-green-500 focus:border-blue-500 focus:outline-none transition-colors duration-300"
                 value={projectData.Departamento}
                 onChange={handleInputChange}
               >
@@ -155,39 +144,26 @@ const Header = ({ idproyect }) => {
                 <option value="Proyecto">Proyecto</option>
               </select>
 
-              <label htmlFor="Objetivo_Proyecto" className="block text-sm font-medium text-black mb-2">
+              <label htmlFor="Objetivo_Proyecto" className="block text-sm font-medium text-gray-700 mb-2">
                 Objetivo Proyecto
               </label>
               <textarea
                 id="Objetivo_Proyecto"
                 name="Objetivo_Proyecto"
-                className="w-full p-2 mb-4 rounded-lg focus:outline-none border-2 border-green-500 focus:border-blue-500 transition-colors duration-300"
+                className="w-full p-2 mb-4 rounded-lg border border-green-500 focus:border-blue-500 focus:outline-none transition-colors duration-300"
                 value={projectData.Objetivo_Proyecto}
                 onChange={handleInputChange}
               />
 
-              <label htmlFor="Prioridad" className="block text-sm font-medium text-black mb-2">
-                Prioridad
-              </label>
-              <select
-                id="Prioridad"
-                name="Prioridad"
-                className="w-full p-2 mb-4 rounded-lg focus:outline-none border-2 border-green-500 focus:border-blue-500 transition-colors duration-300"
-                value={projectData.Prioridad}
-                onChange={handleInputChange}
-              >
-                <option value="Baja">Baja</option>
-                <option value="Media">Media</option>
-                <option value="Alta">Alta</option>
-              </select>
+              
 
-              <label htmlFor="Gerente_Proyecto" className="block text-sm font-medium text-black mb-2">
+              <label htmlFor="Gerente_Proyecto" className="block text-sm font-medium text-gray-700 mb-2">
                 Gerente Proyecto
               </label>
               <select
                 id="Gerente_Proyecto"
                 name="Gerente_Proyecto"
-                className="w-full p-2 mb-4 rounded-lg focus:outline-none border-2 border-green-500 focus:border-blue-500 transition-colors duration-300"
+                className="w-full p-2 mb-4 rounded-lg border border-green-500 focus:border-blue-500 focus:outline-none transition-colors duration-300"
                 value={projectData.Gerente_Proyecto}
                 onChange={handleInputChange}
               >
@@ -198,16 +174,16 @@ const Header = ({ idproyect }) => {
                 ))}
               </select>
 
-              <div className="flex justify-end">
+              <div className="flex justify-end space-x-2">
                 <button
                   type="submit"
-                  className="bg-gradient-to-r from-green-500 to-blue-700 border border-green-500 hover:border-violet-500 text-white font-semibold py-2 px-4 rounded-md transition-colors duration-300 mr-2"
+                  className="bg-gradient-to-r from-green-500 to-blue-700 border border-green-500 hover:border-violet-500 text-white font-semibold py-2 px-4 rounded-md transition-colors duration-300"
                 >
                   Guardar Cambios
                 </button>
                 <button
                   type="button"
-                  className="bg-gradient-to-r from-green-500 to-blue-700 border border-green-500 hover:border-violet-500 text-white font-semibold py-2 px-4 rounded-md transition-colors duration-300"
+                  className="bg-gradient-to-r from-red-500 to-red-700 border border-red-500 hover:border-red-800 text-white font-semibold py-2 px-4 rounded-md transition-colors duration-300"
                   onClick={handleCloseModal}
                 >
                   Cancelar
@@ -222,4 +198,3 @@ const Header = ({ idproyect }) => {
 };
 
 export default Header;
-

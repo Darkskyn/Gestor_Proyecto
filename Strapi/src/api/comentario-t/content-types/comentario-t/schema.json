@@ -1,0 +1,40 @@
+{
+  "kind": "collectionType",
+  "collectionName": "comentario_ts",
+  "info": {
+    "singularName": "comentario-t",
+    "pluralName": "comentario-ts",
+    "displayName": "ComentarioT",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "comentario": {
+      "type": "string"
+    },
+    "Id_usuario": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "Id_comentario"
+    },
+    "Fecha": {
+      "type": "datetime"
+    },
+    "Id_tarea": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::tarea.tarea",
+      "inversedBy": "Id_comentario"
+    },
+    "Id_respuesta_ts": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::respuesta-t.respuesta-t",
+      "mappedBy": "Id_comentarios"
+    }
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "kind": "collectionType",
+  "collectionName": "auditoria_menu_recursos",
+  "info": {
+    "singularName": "auditoria-menu-recurso",
+    "pluralName": "auditoria-menu-recursos",
+    "displayName": "Auditoria_Menu_Recurso",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Fecha": {
+      "type": "datetime"
+    },
+    "id_menu_recursos": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::menu-recurso.menu-recurso",
+      "inversedBy": "Id_auditoria_menu_recursos"
+    },
+    "Nombre_Recurso": {
+      "type": "string"
+    },
+    "Accion": {
+      "type": "enumeration",
+      "enum": [
+        "Modificacion",
+        "Creacion",
+        "Reactivacion",
+        "Eliminacion"
+      ]
+    },
+    "Usuario": {
+      "type": "string"
+    }
+  }
+}

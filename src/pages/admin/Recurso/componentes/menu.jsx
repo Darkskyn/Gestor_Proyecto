@@ -43,7 +43,7 @@ const Menu = () => {
         Descripcion: nuevoRecurso.descripcion
       }
     };
-  
+
     fetch('http://localhost:1337/api/menu-recursos', {
       method: 'POST',
       headers: {
@@ -54,20 +54,64 @@ const Menu = () => {
     .then(response => response.json())
     .then(data => {
       console.log('Nuevo recurso creado:', data);
-      // Actualiza la lista de recursos mostrados después de crear uno nuevo
-      fetchRecursos();
-      // Oculta el formulario después de enviar los datos
-      setMostrarFormulario(false);
-      // Limpia el formulario
-      setNuevoRecurso({ nombre: '', descripcion: '' });
+      
+      // Asegúrate de que la respuesta contiene el ID del nuevo recurso
+      if (data.data && data.data.id) {
+        const token = localStorage.getItem('authToken'); // Obtén el token del localStorage
+        const username = localStorage.getItem('username'); // Obtén el nombre de usuario del localStorage
+        
+        // Enviar datos a la API de auditoría
+        const auditoriaData = {
+          data: {
+            Fecha: new Date().toISOString(),
+            id_menu_recursos: data.data.id, // Usa el ID del nuevo recurso
+            Nombre_Recurso: nuevoRecurso.nombre,
+            Accion: 'Creacion',
+            Usuario: username // Usa el nombre de usuario del localStorage
+          }
+        };
 
-      // Mostrar SweetAlert de éxito
-      Swal.fire({
-        icon: 'success',
-        title: 'Recurso creado correctamente',
-        showConfirmButton: false,
-        timer: 1500
-      });
+        fetch('http://localhost:1337/api/auditoria-menu-recursos', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` // Incluye el token en la cabecera
+          },
+          body: JSON.stringify(auditoriaData),
+        })
+        .then(auditoriaResponse => auditoriaResponse.json())
+        .then(auditoriaData => {
+          console.log('Auditoría registrada:', auditoriaData);
+
+          // Actualiza la lista de recursos mostrados después de crear uno nuevo
+          fetchRecursos();
+          // Oculta el formulario después de enviar los datos
+          setMostrarFormulario(false);
+          // Limpia el formulario
+          setNuevoRecurso({ nombre: '', descripcion: '' });
+
+          // Mostrar SweetAlert de éxito
+          Swal.fire({
+            icon: 'success',
+            title: 'Recurso creado correctamente',
+            showConfirmButton: false,
+            timer: 1500
+          });
+        })
+        .catch(error => {
+          console.error('Error al registrar auditoría:', error);
+          // Mostrar SweetAlert de error en caso de fallo en la auditoría
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al registrar auditoría',
+            text: 'Hubo un problema al intentar registrar la auditoría. Por favor, inténtalo de nuevo.',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Entendido'
+          });
+        });
+      } else {
+        throw new Error('ID del nuevo recurso no disponible.');
+      }
     })
     .catch(error => {
       console.error('Error al crear nuevo recurso:', error);
@@ -82,8 +126,20 @@ const Menu = () => {
     });
   };
 
-  const eliminarRecurso = (id, event) => {
+  const eliminarRecurso = (id, nombre, event) => {
     event.stopPropagation(); // Evita la propagación del evento
+
+    // Verificar si el recurso no es "equipo humano" o "servidor"
+    if (nombre === "equipo humano" || nombre === "servidor") {
+      Swal.fire({
+        icon: 'warning',
+        title: 'No se puede eliminar',
+        text: 'Este recurso no se puede eliminar.',
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'Entendido'
+      });
+      return; // Salir de la función para evitar la eliminación
+    }
 
     Swal.fire({
       title: '¿Estás seguro que quieres eliminar el recurso?',
@@ -140,14 +196,17 @@ const Menu = () => {
             className="backdrop-blur-sm bg-white p-6 rounded-md shadow-sm cursor-pointer border-2 border-blue-800 hover:border-green-500 hover:border-2 transition-colors duration-300 relative"
             onClick={() => redirectToRecursoDatos(recurso.id, recurso.attributes.Nombre)}
           >
-            <div className="flex justify-end absolute top-2 right-2">
-              <button
-                onClick={(event) => eliminarRecurso(recurso.id, event)}
-                className="text-red-500 hover:text-red-700 focus:outline-none"
-              >
-                <IoIosClose className="text-3xl" />
-              </button>
-            </div>
+            {/* Mostrar botón de eliminación solo si el nombre del recurso no es "equipo humano" ni "servidor" */}
+            {recurso.attributes.Nombre !== "equipo humano" && recurso.attributes.Nombre !== "servidor" && (
+              <div className="flex justify-end absolute top-2 right-2">
+                <button
+                  onClick={(event) => eliminarRecurso(recurso.id, recurso.attributes.Nombre, event)}
+                  className="text-red-500 hover:text-red-700 focus:outline-none"
+                >
+                  <IoIosClose className="text-3xl" />
+                </button>
+              </div>
+            )}
             <h2 className="text-4xl font-semibold mb-4">{recurso.attributes.Nombre}</h2>
             <p className="text-gray-800 text-xl">{recurso.attributes.Descripcion}</p>
             {/* Aquí puedes agregar más contenido según los campos disponibles en tu API */}

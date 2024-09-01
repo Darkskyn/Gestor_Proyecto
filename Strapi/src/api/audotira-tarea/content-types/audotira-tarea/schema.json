@@ -1,0 +1,45 @@
+{
+  "kind": "collectionType",
+  "collectionName": "audotira_tareas",
+  "info": {
+    "singularName": "audotira-tarea",
+    "pluralName": "audotira-tareas",
+    "displayName": "Auditoria_Tarea",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Fecha": {
+      "type": "datetime"
+    },
+    "id_proyectos": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::proyecto.proyecto",
+      "inversedBy": "Id_auditoria_tareas"
+    },
+    "Id_tareas": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::tarea.tarea",
+      "inversedBy": "Id_auditoria_tareas"
+    },
+    "Nombre_Tarea": {
+      "type": "string"
+    },
+    "Accion": {
+      "type": "enumeration",
+      "enum": [
+        "Modificacion",
+        "Creacion",
+        "Reactivacion"
+      ]
+    },
+    "Usuario": {
+      "type": "string"
+    }
+  }
+}

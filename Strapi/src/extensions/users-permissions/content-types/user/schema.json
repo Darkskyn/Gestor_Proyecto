@@ -65,16 +65,43 @@
       "inversedBy": "users",
       "configurable": false
     },
-    "Id_asignacion": {
-      "type": "relation",
-      "relation": "manyToOne",
-      "target": "api::asignacion.asignacion",
-      "inversedBy": "id_usuarios"
-    },
     "Estado": {
       "type": "boolean",
-      "required": true,
-      "default": false
+      "default": true
+    },
+    "Estatus": {
+      "type": "boolean",
+      "default": true
+    },
+    "Id_comentarios": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::comentario.comentario",
+      "mappedBy": "Id_usuario"
+    },
+    "Id_auditoria_inicio_sesions": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::auditoria-inicio-sesion.auditoria-inicio-sesion",
+      "mappedBy": "Id_usuario"
+    },
+    "Id_respuestas": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::respuesta.respuesta",
+      "mappedBy": "Id_usuarios"
+    },
+    "Id_comentario": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::comentario-t.comentario-t",
+      "mappedBy": "Id_usuario"
+    },
+    "Id_respuesta_ts": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::respuesta-t.respuesta-t",
+      "mappedBy": "Id_usuario"
     }
   }
 }

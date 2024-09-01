@@ -30,7 +30,7 @@ const Dash = () => {
 
            
             <div className="col-span-full sm:col-span-3 lg:col-span-2 overflow-hidden relative p-8 rounded-xl bg-green-600 border border-green-600 dark:border-gray-800">
-            <Link to="/Admin_Proyecto">
+            <Link to="/Auditoria_proyect">
               <div>
                 <div className="relative aspect-square rounded-full size-32 flex border mx-auto bg-white dark:border-blue-700 before:absolute before:-inset-2 before:border dark:before:border-white/5 dark:before:bg-white/5 before:rounded-full">
                 <FcMindMap className="text-gray-950 dark:text-white/5 rounded-full size-full"/>
@@ -46,7 +46,7 @@ const Dash = () => {
             
 
             <div className="col-span-full sm:col-span-3 lg:col-span-2 overflow-hidden relative p-8 rounded-xl bg-blue-700 border border-green-600 dark:border-gray-800 ">
-            <Link to="/Admin_Tarea">
+            <Link to="/Auditoria_tarea">
               <div>
               <div className="relative bg-white/5 dark:bg-white/5 border border-white/10 dark:border-white/10 rounded-lg w-32 h-36 flex items-center justify-center mx-auto">
               <img src={foto3} className="w-full h-full object-cover rounded-lg" alt="Descripción de la imagen" />
@@ -59,7 +59,7 @@ const Dash = () => {
             </Link>
             </div>
             <div className="col-span-full lg:col-span-3 overflow-hidden relative p-8 rounded-xl bg-green-600 border border-gray-200 dark:border-gray-800 ">
-            <Link to="/Admin_Recurso">
+            <Link to="/Auditoria_recurso">
               <div className="grid sm:grid-cols-2">
                 <div className="flex flex-col justify-between relative z-10 space-y-12 lg:space-y-6">
                 <div className="flex items-left justify-left">
@@ -79,7 +79,7 @@ const Dash = () => {
               </Link>
             </div>
             <div className="col-span-full lg:col-span-3 overflow-hidden relative p-8 rounded-xl bg-green-600 border-gray-200 dark:border-gray-800 ">
-            <Link to="/Admin_Recurso">
+            <Link to="/Auditoria_inicio">
               <div className="h-full grid sm:grid-cols-2">
                 <div className="flex flex-col justify-between relative z-10 space-y-12 lg:space-y-6">
                 <div className="flex items-left justify-left">

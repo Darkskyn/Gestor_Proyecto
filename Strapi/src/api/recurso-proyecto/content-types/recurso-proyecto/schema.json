@@ -26,9 +26,9 @@
     },
     "id_tipo": {
       "type": "relation",
-      "relation": "oneToOne",
+      "relation": "manyToOne",
       "target": "api::menu-recurso.menu-recurso",
-      "inversedBy": "id_recurso_proyecto"
+      "inversedBy": "id_recurso_proyectos"
     }
   }
 }

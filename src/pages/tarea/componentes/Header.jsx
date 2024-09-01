@@ -35,28 +35,7 @@ const Header = () => {
         <FiServer className="mr-2" />
         Todas las Tareas <span className="text-primary-100"></span>
       </h1>
-      <button
-        id="openModalBtn"
-        className="flex mt-5 items-center bg-gradient-to-r from-[#0d17a1] to-[#00ff04d7] border border-fuchsia-00 hover:border-violet-100 text-white font-semibold py-3 px-6 rounded-md transition-colors duration-300"
-        onClick={openModal}
-      >
-        <svg
-          className="w-5 h-5 mr-2 text-white"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-          />
-        </svg>
-        <p className="text-white">Nueva Tarea</p>
-      </button>
-
+     
       <div
         id="myModal"
         className="fixed inset-0 z-10 overflow-hidden backdrop-blur-lg hidden flex items-center justify-center transition-transform duration-300"

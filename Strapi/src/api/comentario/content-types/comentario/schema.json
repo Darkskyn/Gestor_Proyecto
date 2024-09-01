@@ -17,6 +17,27 @@
       "maxLength": 150,
       "minLength": 5,
       "default": "Ingrese Comentario....min 5 caracter"
+    },
+    "Id_usuario": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "Id_comentarios"
+    },
+    "Fecha": {
+      "type": "datetime"
+    },
+    "Id_proyecto": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::proyecto.proyecto",
+      "inversedBy": "Id_comentario"
+    },
+    "Id_respuesta": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::respuesta.respuesta",
+      "mappedBy": "id_comentario"
     }
   }
 }

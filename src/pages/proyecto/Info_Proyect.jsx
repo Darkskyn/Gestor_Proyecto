@@ -1,10 +1,9 @@
 import React, { useState,useEffect } from "react";
-import Sidebar from '../../componentes/Sidebar'
-import { FiServer } from "react-icons/fi";
-import Formulario from './componentes/formulario';
+import Sidebar from '../../componentes/Sidebar';
 import Footer_Proyect from './componentes/footer_Proyect'
 import Header from './componentes/Header2'
 import Informacion from './componentes/informacion'
+
 
 const Info_Proyect = () => {
 
@@ -23,7 +22,7 @@ const Info_Proyect = () => {
       <main className="lg:col-span-3 xl:col-span-5 bg-gray-100 p-8 h-[100vh] overflow-y-scroll">
         <Header idproyect={idproyect}/>
         <div className="mt-12">      
-        <Informacion idproyect={idproyect}/>
+        <Informacion idproyect={idproyect}/>  
         <div className="mt-32">
         <Footer_Proyect />
         </div>

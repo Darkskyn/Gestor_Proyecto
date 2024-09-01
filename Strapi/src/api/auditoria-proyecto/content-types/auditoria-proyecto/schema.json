@@ -1,0 +1,39 @@
+{
+  "kind": "collectionType",
+  "collectionName": "auditoria_proyectos",
+  "info": {
+    "singularName": "auditoria-proyecto",
+    "pluralName": "auditoria-proyectos",
+    "displayName": "Auditoria_Proyecto",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Fecha": {
+      "type": "datetime"
+    },
+    "id_proyectos": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::proyecto.proyecto",
+      "inversedBy": "Id_auditoria_proyectos"
+    },
+    "Nombre_Proyecto": {
+      "type": "string"
+    },
+    "Accion": {
+      "type": "enumeration",
+      "enum": [
+        "Modificacion",
+        "Creacion",
+        "Reactivacion"
+      ]
+    },
+    "Usuario": {
+      "type": "string"
+    }
+  }
+}

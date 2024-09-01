@@ -1,0 +1,43 @@
+{
+  "kind": "collectionType",
+  "collectionName": "auditoria_recursos",
+  "info": {
+    "singularName": "auditoria-recurso",
+    "pluralName": "auditoria-recursos",
+    "displayName": "Auditoria_Recurso",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Fecha": {
+      "type": "datetime"
+    },
+    "id_recursos": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::recurso.recurso",
+      "mappedBy": "Id_auditoria_recursos"
+    },
+    "Usuario": {
+      "type": "string"
+    },
+    "Accion": {
+      "type": "enumeration",
+      "enum": [
+        "Modificacion",
+        "Creacion",
+        "Reativacion",
+        "Eliminacion"
+      ]
+    },
+    "Nombre_Recurso": {
+      "type": "string"
+    },
+    "Menu_recurso": {
+      "type": "string"
+    }
+  }
+}

@@ -22,8 +22,7 @@
       "type": "text",
       "required": false,
       "maxLength": 250,
-      "minLength": 5,
-      "private": true
+      "minLength": 5
     },
     "Fecha_Inicio": {
       "type": "date",
@@ -36,19 +35,13 @@
     "Estado": {
       "type": "enumeration",
       "enum": [
-        "En Ejecucion",
-        "Pausando",
+        "Ejecucion",
         "Cancelado",
         "Finalizado",
-        "Pendiente"
+        "Pendiente",
+        "Suspendido"
       ],
       "required": false
-    },
-    "dependencia": {
-      "type": "relation",
-      "relation": "manyToOne",
-      "target": "api::dependencia.dependencia",
-      "inversedBy": "tareas_fin"
     },
     "Prioridad": {
       "type": "enumeration",
@@ -79,11 +72,26 @@
       "target": "api::proyecto.proyecto",
       "inversedBy": "Id_tareas"
     },
-    "Id_calendar_proyect_tareas": {
+    "SLA": {
+      "type": "integer"
+    },
+    "Id_auditoria_tareas": {
       "type": "relation",
       "relation": "manyToMany",
-      "target": "api::calendar-proyect-tarea.calendar-proyect-tarea",
-      "inversedBy": "Id_tareas"
+      "target": "api::audotira-tarea.audotira-tarea",
+      "mappedBy": "Id_tareas"
+    },
+    "Id_comentario": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::comentario-t.comentario-t",
+      "mappedBy": "Id_tarea"
+    },
+    "Id_respuesta_ts": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::respuesta-t.respuesta-t",
+      "mappedBy": "Id_tarea"
     }
   }
 }

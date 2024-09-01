@@ -21,7 +21,7 @@ const Crear_Proyect = () => {
       <Sidebar />
       <main className="lg:col-span-3 xl:col-span-5 bg-gray-100 p-8 h-[100vh] overflow-y-scroll">
       <header className="flex flex-col md:flex-row items-center justify-between gap-4">
-      <h1 className="text-Black text-2xl md:text-3xl font-bold flex items-center">
+      <h1 className="text-black text-2xl md:text-3xl font-bold flex items-center" style={{ textTransform: 'uppercase' }}>
         <FiServer className="mr-2" />
         Crear Nuevo Proyecto
       </h1>

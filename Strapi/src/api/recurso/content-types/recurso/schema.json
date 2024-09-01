@@ -38,6 +38,12 @@
       "relation": "manyToOne",
       "target": "api::recurso-proyecto.recurso-proyecto",
       "inversedBy": "id_recursos"
+    },
+    "Id_auditoria_recursos": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::auditoria-recurso.auditoria-recurso",
+      "inversedBy": "id_recursos"
     }
   }
 }

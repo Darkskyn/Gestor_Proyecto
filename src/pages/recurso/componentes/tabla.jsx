@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
+import { Link, useNavigate } from 'react-router-dom'; // Asegúrate de importar useNavigate
 
 const Tabla = ({ nombre_proyecto, idproyect }) => {
   const [recursos, setRecursos] = useState([]);
+  const navigate = useNavigate(); // Crear instancia de navigate
 
   useEffect(() => {
     const fetchRecursos = async () => {
@@ -19,26 +21,26 @@ const Tabla = ({ nombre_proyecto, idproyect }) => {
         }
 
         const data = await response.json();
-        console.log(data);
+        console.log('Data recibida:', data);
 
-        // Filtrar los datos para obtener solo el proyecto que coincide con idproyecto
-        const proyectoFiltrado = data.data.find(item => item.attributes.id_proyecto.data.id === idproyect);
-        
-        if (proyectoFiltrado) {
-          const recursosData = [{
-            id: proyectoFiltrado.id,
-            idRecursos: proyectoFiltrado.attributes.id_recursos.data[0].id, // Suponiendo un solo recurso asociado
-            Nombre: (proyectoFiltrado.attributes?.id_recursos?.data[0]?.attributes?.Nombre) || 'N/A',
-            Descripcion: (proyectoFiltrado.attributes?.id_recursos?.data[0]?.attributes?.Descripcion) || 'N/A',
-            Tipo: (proyectoFiltrado.attributes?.id_tipo?.data?.attributes?.Nombre) || 'N/A',
-            Proyecto: (proyectoFiltrado.attributes?.id_proyecto?.data?.attributes?.Nombre_Proyecto) || 'N/A',
-            Estado: (proyectoFiltrado.attributes?.id_recursos?.data[0]?.attributes?.Estado) || false
-          }];
+        // Filtrar los recursos que coincidan con idproyect
+        if (data.data && data.data.length > 0) {
+          const recursosData = data.data
+            .filter(item => item.attributes.id_proyecto?.data?.id === idproyect)
+            .map(item => ({
+              id: item.id,
+              idRecursos: item.attributes.id_recursos?.data[0]?.id || 'N/A',
+              Nombre: item.attributes.id_recursos?.data[0]?.attributes?.Nombre || 'N/A',
+              Descripcion: item.attributes.id_recursos?.data[0]?.attributes?.Descripcion || 'N/A',
+              Tipo: item.attributes.id_tipo?.data?.attributes?.Nombre || 'N/A',
+              Proyecto: item.attributes.id_proyecto?.data?.attributes?.Nombre_Proyecto || 'N/A',
+              Estado: item.attributes.id_recursos?.data[0]?.attributes?.Estado || false
+            }));
 
           setRecursos(recursosData);
         } else {
-          // Mostrar mensaje de proyecto no encontrado
-          console.log('Proyecto no encontrado');
+          console.log('No se encontraron datos');
+          setRecursos([]);
         }
       } catch (error) {
         console.error('Error al obtener recursos:', error);
@@ -82,7 +84,7 @@ const Tabla = ({ nombre_proyecto, idproyect }) => {
             },
             body: JSON.stringify({
               data: {
-                Estado: false // Actualiza el estado a false
+                Estado: true // Actualiza el estado a true
               }
             })
           });
@@ -107,6 +109,21 @@ const Tabla = ({ nombre_proyecto, idproyect }) => {
     }
   };
 
+  const handleNext = async () => {
+    if (recursos.length === 0) {
+      await Swal.fire({
+        title: 'Debe tener recursos creados',
+        text: 'Para avanzar, debes tener al menos un recurso creado.',
+        icon: 'info',
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'Aceptar'
+      });
+    } else {
+      // Navegar a la siguiente página si hay recursos disponibles
+      navigate(`/ms_proyect/crear_Proyect?projectId=${idproyect}&projectName=${encodeURIComponent(nombre_proyecto)}`);
+    }
+  };
+
   return (
     <div>
       <section className="mt-10 bg-white px-4 py-8 text-black antialiased">
@@ -128,47 +145,60 @@ const Tabla = ({ nombre_proyecto, idproyect }) => {
                     <div className="text-center font-semibold">Proyecto</div>
                   </th>
                   <th className="p-4">
-                    <div className="text-center font-semibold">Estado</div>
-                  </th>
-                  <th className="p-4">
                     <div className="text-center font-semibold">Acción</div>
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-700 text-sm">
-                {recursos.map(recurso => (
-                  <tr key={recurso.id}>
-                    <td className="p-4">
-                      <div className="font-medium">{recurso.Nombre}</div>
-                    </td>
-                    <td className="p-4">
-                      <div className="text-left">{recurso.Descripcion}</div>
-                    </td>
-                    <td className="p-4">
-                      <div className="text-left">{recurso.Tipo}</div>
-                    </td>
-                    <td className="p-4">
-                      <div className="text-center">{recurso.Proyecto}</div>
-                    </td>
-                    <td className="p-4">
-                      <div className="text-center">{recurso.Estado ? 'Activo' : 'Inactivo'}</div>
-                    </td>
-                    <td className="p-4 flex justify-center space-x-4">
-                      <svg
-                        onClick={() => handleDelete(recurso.id, recurso.idRecursos)}
-                        className="h-8 w-8 rounded-full p-1 hover:bg-gray-900 hover:text-white cursor-pointer"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                      </svg>
+                {recursos.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" className="p-4 text-center text-gray-600">
+                      No hay recursos disponibles.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  recursos.map(recurso => (
+                    <tr key={recurso.id}>
+                      <td className="p-4">
+                        <div className="font-medium">{recurso.Nombre}</div>
+                      </td>
+                      <td className="p-4">
+                        <div className="text-left">{recurso.Descripcion}</div>
+                      </td>
+                      <td className="p-4">
+                        <div className="text-left">{recurso.Tipo}</div>
+                      </td>
+                      <td className="p-4">
+                        <div className="text-center">{recurso.Proyecto}</div>
+                      </td>
+                      <td className="p-4 flex justify-center space-x-4">
+                        <svg
+                          onClick={() => handleDelete(recurso.id, recurso.idRecursos)}
+                          className="h-8 w-8 rounded-full p-1 hover:bg-gray-900 hover:text-white cursor-pointer"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
+            <div className="flex justify-end pt-10">
+              <button
+                onClick={handleNext}
+                className="bg-gradient-to-r from-[#0d17a1] to-[#00ff04d7] border border-fuchsia-00 hover:border-violet-100 text-white font-semibold py-3 px-6 rounded-md flex items-center space-x-2 transition-colors duration-300"
+              >
+                <svg className="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                <span>Siguiente</span>
+              </button>
+            </div>
           </div>
         </div>
       </section>

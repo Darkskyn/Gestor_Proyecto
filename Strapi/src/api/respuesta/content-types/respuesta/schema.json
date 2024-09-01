@@ -1,0 +1,40 @@
+{
+  "kind": "collectionType",
+  "collectionName": "respuestas",
+  "info": {
+    "singularName": "respuesta",
+    "pluralName": "respuestas",
+    "displayName": "Respuesta",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Id_usuarios": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "Id_respuestas"
+    },
+    "Respuesta": {
+      "type": "text"
+    },
+    "Fecha": {
+      "type": "datetime"
+    },
+    "Id_proyectos": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::proyecto.proyecto",
+      "inversedBy": "Id_respuestas"
+    },
+    "id_comentario": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::comentario.comentario",
+      "inversedBy": "Id_respuesta"
+    }
+  }
+}

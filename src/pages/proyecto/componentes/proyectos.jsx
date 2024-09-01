@@ -6,24 +6,28 @@ const Proyectos = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const projectsPerPage = 6; // Número máximo de proyectos por página
+  const usuarioActual = localStorage.getItem('username'); // Obtener usuario actual desde localStorage
 
   useEffect(() => {
     const fetchProyectos = async () => {
       try {
-        const response = await axios.get('http://localhost:1337/api/proyectos');
-        setProyectos(response.data.data); // Asignamos los proyectos obtenidos del API
+        const response = await axios.get(`http://localhost:1337/api/proyectos?filters[usuario_proyecto][$eq]=${encodeURIComponent(usuarioActual)}`);
+        setProyectos(response.data.data); 
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
 
-    fetchProyectos();
-  }, []);
+    if (usuarioActual) {
+      fetchProyectos();
+    }
+  }, [usuarioActual]); // Ejecutar efecto cuando cambie usuarioActual
 
-  // Filtrar y paginar proyectos según el término de búsqueda
-  const filteredProyectos = proyectos.filter(proyecto =>
-    proyecto.attributes.Nombre_Proyecto.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filtrar proyectos según el término de búsqueda
+  const filteredProyectos = proyectos.filter(proyecto => {
+    const nombreProyecto = proyecto.attributes.Nombre_Proyecto.toLowerCase();
+    return nombreProyecto.includes(searchTerm.toLowerCase());
+  });
 
   // Calcular índices de proyectos por página
   const startIndex = (currentPage - 1) * projectsPerPage;
@@ -49,7 +53,6 @@ const Proyectos = () => {
 
   // Función para redireccionar al detalle del proyecto
   const redirectToProjectDetail = (projectId) => {
-    // Construye la URL con el ID del proyecto
     window.location.href = `/Info_Proyect?projectId=${projectId}`;
   };
 
@@ -63,7 +66,7 @@ const Proyectos = () => {
       case 'Cancelado':
         return 'text-red-500';
       case 'Pendiente de Aprobación':
-        return 'text-blue-500'
+        return 'text-blue-500';
       default:
         return 'text-gray-700';
     }
@@ -101,7 +104,7 @@ const Proyectos = () => {
       </div>
 
       {filteredProyectos.length === 0 ? (
-        <p className="text-center text-gray-800">No se encontraron proyectos con ese nombre.</p>
+        <p className="text-center text-gray-800">No hay Proyectos Disponibles</p>
       ) : (
         <>
           <div className="pt-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-4">
@@ -109,19 +112,23 @@ const Proyectos = () => {
               <div
                 key={proyecto.id}
                 onClick={() => redirectToProjectDetail(proyecto.id)}
-                className="backdrop-blur-sm bg-white/20 p-6 rounded-md shadow-sm cursor-pointer border-2 hover:border-green-500 border-blue-800 transition-colors duration-300"
+                className="transition-all duration-1000 bg-white hover:shadow-xl m-2 p-4 relative z-40 group rounded-md shadow-sm cursor-pointer overflow-hidden"
+                style={{ position: 'relative', zIndex: 1 }}
               >
-                <h2 className="text-xl font-semibold mb-4 uppercase">
-                  {proyecto.attributes.Nombre_Proyecto}
-                </h2>
-                <p className="text-gray-700">{proyecto.attributes.Descripcion}</p>
-                <div className="col-start-2 row-start-1 row-end-3 sm:mt-4 lg:mt-4 xl:mt-4">
-                  <dl className="flex justify-end sm:justify-start lg:justify-end xl:justify-start -space-x-1.5">
-                    <dt className="text-gray-500">Estado:</dt>
-                    <dd className={`pl-2 ${getStatusClass(proyecto.attributes.Estado_Proyecto)}`}>
+                <div
+                  className="absolute bg-blue-500/50 top-0 left-0 w-24 h-1 z-30 transition-all duration-200 group-hover:bg-green-500 group-hover:w-1/2"
+                  style={{ zIndex: 1 }}
+                ></div>
+                <div className="py-2 px-9 relative group-hover:text-white">
+                  <h2 className="mt-4 text-2xl font-semibold text-black uppercase">{proyecto.attributes.Nombre_Proyecto}</h2>
+                  <p className="mt-2 text-sm text-gray-600"><span className="font-bold">Fecha de inicio:</span> {proyecto.attributes.Fecha_Inicio}</p>
+                  <p className="text-sm text-gray-600"><span className="font-bold">Fecha de fin:</span> {proyecto.attributes.Fecha_Fin}</p>
+                  <p className="mt-2 text-sm text-gray-600"><span className="font-bold">Gerente del Proyecto:</span> {proyecto.attributes.Gerente_Proyecto}</p>
+                  <div className="mt-2 text-sm flex items-center text-gray-600">
+                    <span className={`text-sm ${getStatusClass(proyecto.attributes.Estado_Proyecto)}`}>
                       {proyecto.attributes.Estado_Proyecto || 'Sin estado'}
-                    </dd>
-                  </dl>
+                    </span>
+                  </div>
                 </div>
               </div>
             ))}
@@ -153,4 +160,3 @@ const Proyectos = () => {
 };
 
 export default Proyectos;
-

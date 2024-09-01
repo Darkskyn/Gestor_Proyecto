@@ -21,8 +21,9 @@
     "Descripcion": {
       "type": "text",
       "required": false,
-      "maxLength": 500,
-      "minLength": 20
+      "maxLength": 250,
+      "minLength": 20,
+      "private": true
     },
     "Fecha_Inicio": {
       "type": "date",
@@ -38,7 +39,8 @@
         "Pendiente de Aprobación",
         "En Progreso",
         "Completado",
-        "Cancelado"
+        "Cancelado",
+        "Suspendido"
       ],
       "required": false
     },
@@ -53,7 +55,7 @@
     "Objetivo_Proyecto": {
       "type": "text",
       "required": false,
-      "maxLength": 500,
+      "maxLength": 250,
       "minLength": 20
     },
     "Prioridad": {
@@ -84,17 +86,41 @@
       "required": false,
       "min": 1
     },
-    "Id_calendar_proyect_tareas": {
-      "type": "relation",
-      "relation": "manyToMany",
-      "target": "api::calendar-proyect-tarea.calendar-proyect-tarea",
-      "inversedBy": "Id_proyectos"
-    },
     "Id_recursos": {
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::recurso-proyecto.recurso-proyecto",
       "mappedBy": "id_proyecto"
+    },
+    "usuario_proyecto": {
+      "type": "string"
+    },
+    "Id_comentario": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::comentario.comentario",
+      "mappedBy": "Id_proyecto"
+    },
+    "SLA": {
+      "type": "integer"
+    },
+    "Id_auditoria_proyectos": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::auditoria-proyecto.auditoria-proyecto",
+      "mappedBy": "id_proyectos"
+    },
+    "Id_auditoria_tareas": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::audotira-tarea.audotira-tarea",
+      "mappedBy": "id_proyectos"
+    },
+    "Id_respuestas": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::respuesta.respuesta",
+      "mappedBy": "Id_proyectos"
     }
   }
 }

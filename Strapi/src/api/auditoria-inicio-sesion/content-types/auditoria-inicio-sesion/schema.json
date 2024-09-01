@@ -1,0 +1,32 @@
+{
+  "kind": "collectionType",
+  "collectionName": "auditoria_inicio_sesions",
+  "info": {
+    "singularName": "auditoria-inicio-sesion",
+    "pluralName": "auditoria-inicio-sesions",
+    "displayName": "Auditoria_Inicio_Sesion",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Fecha": {
+      "type": "datetime"
+    },
+    "Id_usuario": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "Id_auditoria_inicio_sesions"
+    },
+    "Accion": {
+      "type": "enumeration",
+      "enum": [
+        "Inicio",
+        "Cierre"
+      ]
+    }
+  }
+}

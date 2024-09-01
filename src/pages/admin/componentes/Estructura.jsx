@@ -12,6 +12,12 @@ const Estructura = () => {
     const [stats, setStats] = useState({ enProgreso: 0, completado: 0, cancelado: 0 });
     const chartRef = useRef(null);
 
+    const handleRedirect = (estado) => {
+        // Construye la URL con el parámetro de estado
+        const url = `/Admin_Proyecto?filtro=${encodeURIComponent(estado)}`;
+        window.location.href = url;
+    };
+
     const obtenerUsuarios = async () => {
         try {
             const response = await fetch('http://localhost:1337/api/users?populate=role');
@@ -235,7 +241,7 @@ const Estructura = () => {
               <FcBriefcase className="text-white text-6xl	" />
             </div>
         </div>
-        <a href="/Admin_Proyecto" className="text-[#00ff03] font-medium text-lg hover:text-white flex items-center justify-end pr-2">
+        <a href="/Admin_Recurso" className="text-[#00ff03] font-medium text-lg hover:text-white flex items-center justify-end pr-2">
             Ver más...
           </a>
     </div>
@@ -381,21 +387,30 @@ const Estructura = () => {
             <div className="bg-white border border-blue-700 shadow-md p-6 rounded-md lg:col-span-2">
             <div className="font-medium mb-4">Estadísticas Proyectos</div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-                <div className="rounded-md  border-dashed bg-blue-700 border-white border-2 p-4 flex items-center justify-between">
+                <div 
+                    className="rounded-md border-dashed bg-blue-700 border-white border-2 p-4 flex items-center justify-between cursor-pointer"
+                    onClick={() => handleRedirect('En Progreso')}
+                >
                     <div>
                         <div className="text-xl text-white font-semibold">{stats.enProgreso}</div>
                         <span className="text-white text-lg">En Progreso</span>
                     </div>
                     {/* Aquí se podría añadir un icono o gráfico pequeño */}
                 </div>
-                <div className="rounded-md border-dashed bg-blue-700 border-white border-2 p-4 flex items-center justify-between">
+                <div 
+                    className="rounded-md border-dashed bg-blue-700 border-white border-2 p-4 flex items-center justify-between cursor-pointer"
+                    onClick={() => handleRedirect('Completado')}
+                >
                     <div>
                         <div className="text-xl text-white font-semibold">{stats.completado}</div>
                         <span className="text-white text-lg">Completado</span>
                     </div>
                     {/* Aquí se podría añadir un icono o gráfico pequeño */}
                 </div>
-                <div className="rounded-md  border-dashed bg-blue-700 border-white border-2 p-4 flex items-center justify-between">
+                <div 
+                    className="rounded-md border-dashed bg-blue-700 border-white border-2 p-4 flex items-center justify-between cursor-pointer"
+                    onClick={() => handleRedirect('Cancelado')}
+                >
                     <div>
                         <div className="text-xl text-white font-semibold">{stats.cancelado}</div>
                         <span className="text-white text-lg">Cancelado</span>
